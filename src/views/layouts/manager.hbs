@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.min.js"
+        integrity="sha384-heAjqF+bCxXpCWLa6Zhcp4fu20XoNIA98ecBC1YkdXhszjoejr5y9Q77hIrv8R9i"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<style>
+    #flash-alert {
+        position: absolute;
+        z-index: 9;
+    }
+
+    #manage__temp {
+        position: relative;
+    }
+
+    .sub__temp {
+        position: absolute;
+        display: none;
+        background-color: #fff;
+        left: -158px;
+        top: -8px;
+        padding: 4px;
+        border-radius: 3px;
+    }
+
+    .sub__temp a {
+        text-decoration: none;
+        color: #000;
+    }
+
+    .sub__temp a:hover {
+        background-color: #ccc;
+    }
+
+    #manage__temp:hover .sub__temp {
+        display: flex;
+    }
+
+    #logout:hover {
+        cursor: pointer;
+        opacity: 0.8;
+    }
+</style>
+
+<body>
+
+    {{> header}}
+    <div class="fixed">
+
+        <nav class="navbar navbar-expand-lg" style="background-color: #4562e2;">
+            <div class="container">
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 w-100 d-flex justify-content-around">
+                        {{#unless manager}}
+                        <li class="nav-item">
+                            <a style="font-size: 150%;  width: 100%;" class="nav-link " href="/host/create-account">Tạo
+                                tài khoản</a>
+                        </li>
+                        {{/unless }}
+
+                        <li class="nav-item">
+                            <a style="font-size: 150%;  width: 100%;" class="nav-link"
+                                href="/host/send-announcement">Gửi
+                                thông báo</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a style="font-size: 150%;  width: 100%;" class="nav-link" href="/host/manage-bills">Xuất
+                                hóa đơn thu tiền</a>
+                        </li>
+                        <li>
+                            <div class="dropdown-center">
+                                <a style="font-size: 150%; width: 100%;" class="nav-link dropdown-toggle dropbtn"
+                                    href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Quản lý
+                                </a>
+                                <ul class="dropdown-menu">
+                                    {{#unless manager}}
+                                    <li id="manage__temp">
+                                        <a class="dropdown-item" href="#">Quản lý tạm trú</a>
+                                        <div class="sub__temp flex-column">
+                                            <a href="/host/dang-ky-tam-tru">Đơn đăng ký tạm trú</a>
+                                            <a href="/host/gia-han-tam-tru">Đơn gia hạn tạm trú</a>
+                                        </div>
+                                    </li>
+                                    {{/unless }}
+                                    <li><a class="dropdown-item" href="/host/manage-customer">Quản lý thông tin khách
+                                            trọ</a></li>
+                                    <li><a class="dropdown-item" href="/host/hop-dong-thue-tro">Quản lý hợp đồng thuê
+                                            trọ</a></li>
+                                    <li><a class="dropdown-item" id="current" href="/host/manage-bills">Quản lý tiền
+                                            phòng</a></li>
+
+                            </div>
+                        </li>
+
+                        <li class="nav-item">
+                            <span id="logout" style="font-size: 150%;  width: 100%; color: #ccc;" class="nav-link">Đăng
+                                xuất</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Flash message -->
+    {{#if flash}}
+    <div id="flash-alert" class="alert alert-success text-center w-100 mx-auto ">
+        <span> <strong> {{{flash.message}}}</strong></span>
+    </div>
+    {{/if}}
+    <!-- End Flash message -->
+
+    {{{body}}}
+    {{> footer}}
+
+
+
+</body>
+<script>
+    $(document).ready(function () {
+        const date = new Date();
+        const year = date.getFullYear()
+        const month = date.getMonth() + 1
+        $("#current").attr("href", $("#current").attr("href") + "/" + year + "/" + month);
+    });
+    // Lấy đối tượng flash message và nút tắt
+    const flashMessage = document.getElementById('flash-alert');
+
+    const logout = document.getElementById('logout');
+
+    logout.addEventListener('click', () => {
+        fetch(`http://localhost:3000/host/logout`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                window.location.href = '/login'
+            })
+            .catch(error => {
+                console.log(error)
+            });
+    })
+    // Nếu flash message và nút tắt tồn tại
+    if (flashMessage) {
+        // Sau 1 giây, ẩn flash message
+        const timeoutId = setTimeout(() => {
+            flashMessage.style.display = 'none';
+        }, 3000);
+    }
+</script>
+
+
+</html>

@@ -1,0 +1,326 @@
+<head>
+    <link rel="stylesheet" href="/css/admin.css">
+    <title>Quản lý thông tin khách trọ</title>
+</head>
+
+
+<h1 class="text-center mt-3">Quản lý thông tin khách trọ</h1>
+<div class="container-fluid mt-3">
+    <div class="d-flex justify-content-between">
+        <select onchange="filterRoom(this)" class="form-select form-select-lg bg-success text-light w-auto"
+            aria-label="Default select deleteCustomer">
+            <option value="All" {{checkFilter filter "All" }}>Tất cả dãy</option>
+            {{#each rooms}}
+            <option value="{{day}}" {{checkFilter ../filter day}}>Dãy {{day}}</option>
+            {{/each}}
+        </select>
+        <button onclick="createCustomer()" class="text-white btn btn-warning" 
+                    data-bs-toggle="modal" data-bs-target="#createCustomerModal">Thêm khách trọ</button>
+    </div>
+
+    <table class="table table-dark table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">CCCD</th>
+                <th scope="col">Họ Tên</th>
+                <th scope="col">Mã phòng ở</th>
+                <th scope="col">Ngày sinh</th>
+                <th scope="col">Số điện thoại</th>
+                <th scope="col">Địa chỉ</th>
+                <th scope="col">Email</th>
+                <th scope="col">Ghi chú</th>
+                <th scope="col">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each customer}}
+            <tr>
+                <th class="align-middle" scope="row">{{cccd}}</th>
+                <td class="align-middle">{{hoten}}</td>
+                <td class="align-middle">{{maphong}}</td>
+                <td class="align-middle">{{formatDate ngaysinh}}</td>
+                <td class="align-middle">{{sodienthoai}}</td>
+                <td class="align-middle">{{diachi}}</td>
+                <td class="align-middle">{{email}}</td>
+                <td class="align-middle">{{ghichu}}</td>
+                <td class="align-middle">
+                    <button onclick="updateCustomer(this)" class="text-white btn btn-success w-100" 
+                    data-bs-toggle="modal" data-bs-target="#updateCustomerModal">Cập nhật</button>
+                    <button onclick="deleteCustomer(this)" class="text-white btn btn-danger w-100"
+                        data-bs-toggle="modal" data-bs-target="#deleteCustomerModal">Xóa</button>
+                </td>
+            </tr>
+            {{/each}}
+            {{!-- <tr>
+                <th class="align-middle" scope="row">089202013930</th>
+                <td class="align-middle">Nguyễn Văn Bành</td>
+                <td class="align-middle">A01</td>
+                <td class="align-middle">08/11/2002</td>
+                <td class="align-middle">0334353660</td>
+                <td class="align-middle">19/3 Phường Tân Phong Q7 TP Hồ Chí Minh</td>
+                <td class="align-middle">ngjyentiendat9a3@gmail.com</td>
+                <td class="align-middle">Còn nợ tiền phòng 04/2022</td>
+                <td class="align-middle"><a class="text-white btn btn-success w-100" href="">Cập nhật</a><a
+                        class="text-white btn btn-danger w-100" href="">Xóa</a></td>
+            </tr> --}}
+        </tbody>
+    </table>
+</div>
+
+<div class="page">
+    <div class="text-center fs-4">
+        {{#if (gt pageCount 1)}}
+            {{#if (eq currentPage 1)}}
+            <span class="btn btn-success disabled">Prev</span>
+            {{else}}
+            <a class="btn btn-success" href="/host/manage-customer?{{checkFilterForPage filter}}page={{minus currentPage 1}}">Prev</a>
+            {{/if}}
+
+            {{#each (range 1 pageCount)}}
+                {{#if (eq this ../currentPage)}}
+                    <span>{{this}}</span>
+                {{else}}
+                    <a class="text-decoration-none" href="/host/manage-customer?{{checkFilterForPage ../filter}}page={{this}}">{{this}}</a>
+                {{/if}}
+            {{/each}}
+
+            {{#if (eq currentPage pageCount)}}
+                <span class="btn btn-success disabled">Next</span>
+            {{else}}
+                <a class="btn btn-success" href="/host/manage-customer?{{checkFilterForPage filter}}page={{add currentPage 1}}">Next</a>
+            {{/if}}
+        {{/if}}
+    </div>
+</div>
+
+<!--Create Modal -->
+<div class="modal fade" id="createCustomerModal" tabindex="-1" aria-labelledby="createCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="createCustomerModalLabel">Thêm khách trọ mới</span></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="cccdCreate" class="form-label">Số CMND/CCCD</label>
+                    <input type="text" class="form-control" id="cccdCreate">
+                </div>
+                <div class="mb-3">
+                    <label for="ngaycapCreate" class="form-label">Ngày cấp CCCD</label>
+                    <input type="date" class="form-control" id="ngaycapCreate">
+                </div>
+                <div class="mb-3">
+                    <label for="noicapCreate" class="form-label">Nơi cấp CCCD</label>
+                    <input type="text" class="form-control" id="noicapCreate">
+                </div>
+                <div class="mb-3">
+                    <label for="roomIdCreate" class="form-label">Mã phòng ở</label>
+                    <select id="roomIdCreate" class="form-select" aria-label="Default select example">
+                        {{#each rooms}}
+                            {{#each phong}}
+                                <option value="{{maphong}}">{{maphong}}</option>
+                            {{/each}}
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="nameCreate" class="form-label">Họ tên</label>
+                    <input type="text" class="form-control" id="nameCreate">
+                </div>
+                <div class="mb-3">
+                    <label for="dateCreate" class="form-label">Ngày sinh</label>
+                    <input type="date" class="form-control" id="dateCreate">
+                </div>
+                <div class="mb-3">
+                    <label for="phoneCreate" class="form-label">Số điện thoại</label>
+                    <input type="text" class="form-control" id="phoneCreate">
+                </div>
+                <div class="mb-3">
+                    <label for="addressCreate" class="form-label">Địa chỉ</label>
+                    <input type="text" class="form-control" id="addressCreate">
+                </div>
+                <div class="mb-3">
+                    <label for="emailCreate" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="emailCreate">
+                </div>
+                <div class="mb-3">
+                    <label for="noteCreate" class="form-label">Ghi chú</label>
+                    <input type="text" class="form-control" id="noteCreate">
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button id="confirmCreate" type="button" data-bs-dismiss="modal" class="btn btn-success">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Delete Modal -->
+<div class="modal fade" id="deleteCustomerModal" tabindex="-1" aria-labelledby="deleteCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteCustomerModalLabel">Bạn có chắc muốn xóa người dùng này?</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Các thông tin sau khi xóa sẽ không được tìm thấy trên trang web nữa. Bạn chỉ có thể khôi phục lại bằng cách bật
+                lại người dùng lại trong cơ sở dữ liệu
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button id="confirmDelete" type="button" data-bs-dismiss="modal" class="btn btn-primary">Chắc chắn</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Edit Modal -->
+<div class="modal fade" id="updateCustomerModal" tabindex="-1" aria-labelledby="updateCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="updateCustomerModalLabel">Cập nhật thông tin khách trọ: <span id="name"></span></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="roomId" class="form-label">Mã phòng ở</label>
+                    <select id="roomId" class="form-select" aria-label="Default select example">
+                        {{#each rooms}}
+                            {{#each phong}}
+                                <option value="{{maphong}}">{{maphong}}</option>
+                            {{/each}}
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Số điện thoại</label>
+                    <input type="text" class="form-control" id="phone">
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Địa chỉ</label>
+                    <input type="text" class="form-control" id="address">
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email">
+                </div>
+                <div class="mb-3">
+                    <label for="note" class="form-label">Ghi chú</label>
+                    <input type="text" class="form-control" id="note">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button id="confirmUpdate" type="button" data-bs-dismiss="modal" class="btn btn-success">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function filterRoom(day) {
+        if (day.value == "All") {
+            window.location.href = "/host/manage-customer"
+        }
+        else window.location.href = `/host/manage-customer?day=${day.value}`
+    }
+    function deleteCustomer(btnDel) {
+        let cccd = btnDel.parentNode.parentNode.children[0].innerHTML;
+        let name = btnDel.parentNode.parentNode.children[1].innerHTML;
+        $('#confirmDelete').click(async function(e){
+            const url = 'http://localhost:3000/host/api/manage-customer';
+            const data = { cccd: cccd};
+            fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                window.location.reload();
+            })
+            .catch(error => console.error(error));
+        })
+    }
+
+    function createCustomer(){
+        $('#confirmCreate').click(async function(e){
+            const url = 'http://localhost:3000/host/api/manage-customer';
+            const data = { 
+                cccd: $("#cccdCreate").val(),
+                ngaycap: $("#ngaycapCreate").val(),
+                noicap: $('#noicapCreate').val(),
+                maphong: $("#roomIdCreate").val(),
+                hoten: $("#nameCreate").val(),
+                ngaysinh: $("#dateCreate").val(),
+                sodienthoai: $("#phoneCreate").val(),
+                diachi: $("#addressCreate").val(),
+                email: $("#emailCreate").val(),
+                ghichu: $("#noteCreate").val(),
+            };
+            fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                window.location.reload();
+            })
+            .catch(error => console.error(error));
+        }) 
+    }
+
+    function updateCustomer(btnUpdate){
+        let tr = btnUpdate.parentNode.parentNode;
+        let cccd = tr.children[0].innerHTML;
+        let name = tr.children[1].innerHTML;
+        let roomId = tr.children[2].innerHTML;
+        let phone = tr.children[4].innerHTML;
+        let address = tr.children[5].innerHTML;
+        let email = tr.children[6].innerHTML;
+        let note = tr.children[7].innerHTML;
+        $("#name").html(name);
+
+        $("#roomId").val(roomId);
+        $("#phone").val(phone);
+        $("#address").val(address);
+        $("#email").val(email);
+        $("#note").val(note);
+
+        $('#confirmUpdate').click(async function(e){
+            const url = 'http://localhost:3000/host/api/manage-customer';
+            const data = { 
+                cccd: cccd,
+                maphong: $("#roomId").val(),
+                sodienthoai: $("#phone").val(),
+                diachi: $("#address").val(),
+                email: $("#email").val(),
+                ghichu: $("#note").val(),
+            };
+            fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                window.location.reload();
+            })
+            .catch(error => console.error(error));
+        })     
+    }
+</script>

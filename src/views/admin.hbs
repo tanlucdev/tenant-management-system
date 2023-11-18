@@ -1,0 +1,18 @@
+<head>
+    <link rel="stylesheet" href="/css/admin.css">
+    <title>Quản lý trọ</title>
+</head>
+
+<body>
+    <div class="container">
+        {{#each rooms}}
+            <div class="row">
+                <div class="room" style="background-color: red;">Dãy {{day}}</div>
+                {{#each phong}}
+                <div class="room">Phòng {{maphong}}</div>
+                {{/each}}
+            </div>
+        {{/each}}
+    </div>
+
+</body>

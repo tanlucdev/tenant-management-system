@@ -1,0 +1,265 @@
+<head>
+    <link rel="stylesheet" href="/css/admin.css">
+    <title>Quản lý tiền phòng</title>
+</head>
+
+<div class="container mt-3">
+    <div class="d-flex justify-content-between">
+        <div>
+            <select onchange="showMonths(this)" class="form-select form-select-lg bg-success text-light w-auto"
+                style="float: left;" aria-label="Default select">
+                <option disabled selected>Chọn năm</option>
+                <option {{#if year}} {{selected year "2019" }} {{/if}} value="2019">2019</option>
+                <option {{#if year}} {{selected year "2020" }} {{/if}} value="2020">2020</option>
+                <option {{#if year}} {{selected year "2021" }} {{/if}} value="2021">2021</option>
+                <option {{#if year}} {{selected year "2022" }} {{/if}} value="2022">2022</option>
+                <option {{#if year}} {{selected year "2023" }} {{/if}} value="2023">2023</option>
+
+            </select>
+            <select onchange="chooseMonth(this)" id="months"
+                class="form-select form-select-lg bg-success text-light w-auto" aria-label="Default select" {{#if
+                year}}{{else}}disabled hidden{{/if}}>
+                <option disabled selected>Chọn tháng</option>
+                <option {{#if month}} {{selected month "1" }} {{/if}} value="1">1</option>
+                <option {{#if month}} {{selected month "2" }} {{/if}} value="2">2</option>
+                <option {{#if month}} {{selected month "3" }} {{/if}} value="3">3</option>
+                <option {{#if month}} {{selected month "4" }} {{/if}} value="4">4</option>
+                <option {{#if month}} {{selected month "5" }} {{/if}} value="5">5</option>
+                <option {{#if month}} {{selected month "6" }} {{/if}} value="6">6</option>
+                <option {{#if month}} {{selected month "7" }} {{/if}} value="7">7</option>
+                <option {{#if month}} {{selected month "8" }} {{/if}} value="8">8</option>
+                <option {{#if month}} {{selected month "9" }} {{/if}} value="9">9</option>
+                <option {{#if month}} {{selected month "10" }} {{/if}} value="10">10</option>
+                <option {{#if month}} {{selected month "11" }} {{/if}} value="11">11</option>
+                <option {{#if month}} {{selected month "12" }} {{/if}} value="12">12</option>
+            </select>
+        </div>
+        <a href="/host/quan-ly-phan-hoi" class="text-white btn btn-warning fs-4">Xem phản hồi tiền phòng</a>
+    </div>
+
+    <table class="table table-dark table-striped table-hover" {{#if month}}{{else}}hidden{{/if}}>
+        <thead>
+            <tr>
+                <th scope="col">Mã phòng</th>
+                <th scope="col">Giá thuê</th>
+                <th scope="col">Hóa đơn</th>
+                <th scope="col">Trạng thái</th>
+                <th scope="col">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each rooms}}
+            <tr>
+                <th class="align-middle" scope="row">{{maphong}}</th>
+                <td class="align-middle">{{giathue}}</td>
+                <td class="align-middle">{{{hoadon}}}</td>
+                <td class="align-middle">{{trangthai}}</td>
+                <td class="align-middle" style="width: 30%;">
+                    <button onclick="extractBill(this)" class="text-white btn btn-success" data-bs-toggle="modal"
+                        data-bs-target="#extractBillModal" {{checkBill hoadon}}>Xuất hóa đơn</button>
+                    <a href="/host/complete-bill/{{maphong}}" onclick="completeBill(this)"
+                        class="text-white btn btn-danger {{checkCompleteBill trangthai}}">Xác nhận đã đóng tiền</a>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<!--Extract Bill Modal -->
+<div class="modal fade" id="extractBillModal" tabindex="-1" aria-labelledby="extractBillModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="extractBillModalLabel">Nhập thông tin tiền phòng</span></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="roomIdExtract" class="form-label">Mã phòng ở</label>
+                    <input type="text" class="form-control" id="roomIdExtract" name="roomIdExtract">
+                </div>
+                <div class="mb-3">
+                    <label for="cccdExtract" class="form-label">Số CMND/CCCD</label>
+                    <input type="text" class="form-control" id="cccdExtract">
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-md-5">
+                        <label for="firstNumberEletric" class="form-label">Chỉ số điện đầu</label>
+                        <input type="number" class="form-control" id="firstNumberEletric">
+                    </div>
+                    <div class="col-md-5">
+                        <label for="finalNumberElectric" class="form-label">Chỉ số điện cuối</label>
+                        <input type="number" class="form-control" id="finalNumberElectric">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="priceEletric" class="form-label">Đơn giá tiền điện</label>
+                    <input type="number" class="form-control" id="priceEletric">
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-md-5">
+                        <label for="firstNumberWater" class="form-label">Chỉ số nước đầu</label>
+                        <input type="number" class="form-control" id="firstNumberWater">
+                    </div>
+                    <div class="col-md-5">
+                        <label for="finalNumberWater" class="form-label">Chỉ số nước cuối</label>
+                        <input type="number" class="form-control" id="finalNumberWater">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="priceWater" class="form-label">Đơn giá tiền nước</label>
+                    <input type="number" class="form-control" id="priceWater">
+                </div>
+                <div class="form-check mb-3">
+                    <label class="form-check-label mt-1 ms-1" for="priceInternet">
+                        Tiền mạng (180,000 VNĐ)
+                    </label>
+                    <input style="width: 30px; height: 30px;" class="form-check-input" type="checkbox" value="180000"
+                        id="priceInternet" checked>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button id="confirmExtract" type="button" data-bs-dismiss="modal" class="btn btn-success">Xuất hóa
+                    đơn</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form action="/host/extract-bill" method="post" hidden>
+    <input type="text" name="maphong" id="maphong">
+    <input type="text" name="cccd" id="cccd">
+    <input type="number" name="chisodiendau" id="chisodiendau">
+    <input type="number" name="chisodiencuoi" id="chisodiencuoi">
+    <input type="number" name="chisonuocdau" id="chisonuocdau">
+    <input type="number" name="chisonuoccuoi" id="chisonuoccuoi">
+    <input type="number" name="sotiendien" id="sotiendien">
+    <input type="number" name="sotiennuoc" id="sotiennuoc">
+    <input type="number" name="sotieninternet" id="sotieninternet">
+    <input type="number" name="tienphong" id="tienphong">
+    <input type="number" name="tongtienthanhtoan" id="tongtienthanhtoan">
+    <input type="submit" value="Submit">
+</form>
+
+<script>
+    function showMonths(btnYear) {
+        document.getElementById("months").removeAttribute('disabled');
+        window.location.href = "/host/manage-bills/" + btnYear.value
+    }
+    function chooseMonth(btnMonth) {
+        window.location.href = "/host/manage-bills/{{year}}/" + btnMonth.value
+    }
+    function splitThoiHan(thoihan) {
+
+        const [start, end] = thoihan.split(" đến ");
+        const [startDay, startMonth, startYear] = start.replace(/\//g, "-").split("-");
+        const [endDay, endMonth, endYear] = end.replace(/\//g, "-").split("-");
+
+        return {
+            ngayBatDau: startDay,
+            thangBatDau: startMonth,
+            namBatDau: startYear,
+            ngayKetThuc: endDay,
+            thangKetThuc: endMonth,
+            namKetThuc: endYear
+        };
+    }
+    function getDaysInMonth(month,year) {
+        let date = new Date(year, month, 1); // Tạo đối tượng Date với ngày là 1 và tháng, năm được cung cấp
+        let daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate(); // Lấy số ngày trong tháng
+        return daysInMonth
+    }
+    async function extractBill(btnExtractBill) {
+        let tr = btnExtractBill.parentNode.parentNode
+        let maphong = tr.children[0].innerHTML
+        $("#roomIdExtract").val(maphong)
+
+        let response = await fetch('http://localhost:3000/host/api/get-hopdong-by-maphong/' + maphong)
+        let dataHopdong = await response.json()
+        $("#cccdExtract").val(dataHopdong.result[0].cccd)
+
+        // $("#firstNumberEletric").val()
+        // $("#finalNumberElectric").val()
+        $("#priceEletric").val(parseFloat(dataHopdong.result[0].giatiendien))
+        // $("#firstNumberWater").val()
+        // $("#finalNumberWater").val()
+        $("#priceWater").val(parseFloat(dataHopdong.result[0].giatiennuoc))
+
+        if (dataHopdong.result[0].giatieninternet)
+            $("#priceInternet").prop('checked', true);
+        else
+            $("#priceInternet").prop('checked', false);
+
+        $("#priceInternet").val(dataHopdong.result[0].giatieninternet)
+
+        const han = splitThoiHan(dataHopdong.result[0].ngaybatdauvangayketthuc)
+
+        $('#confirmExtract').click(async function (e) {
+            if ($("#roomIdExtract").val() == '' || $("#cccdExtract").val() == '' || $("#firstNumberElectric").val() == '' || $("#finalNumberElectric").val() == '' || $("#priceElectric").val() == '' || $("#firstNumberWater") == '' || $("#finalNumberWater").val() == '' || $("#priceWater").val() == '') {
+                alert("Hãy nhập đầy đủ thông tin");
+                return;
+            }
+
+            tongtienthanhtoan = parseFloat(($("#finalNumberElectric").val() - $("#firstNumberEletric").val()) * parseFloat($("#priceEletric").val()) + (parseFloat($("#finalNumberWater").val()) - parseFloat($("#firstNumberWater").val())) * parseFloat($("#priceWater").val()) + parseFloat($("#priceInternet").val())) + parseFloat(dataHopdong.result[0].giathue)
+            tienphong = dataHopdong.result[0].giathue
+
+            let year = 0, month = 0;
+            {{#if year}}
+                year = {{year}};
+            {{/if}}
+            {{#if month}}
+                month = {{month}};
+            {{/if}}
+            if(year >= han.namBatDau && year <= han.namKetThuc){
+                if(year == han.namBatDau || year == han.namKetThuc){
+                    if(month == han.thangBatDau){
+                        numberDay = getDaysInMonth(month, year)
+                        tienphong = parseFloat(tienphong) * parseFloat((numberDay - han.ngayBatDau) / numberDay)
+                        tongtienthanhtoan = parseFloat(($("#finalNumberElectric").val() - $("#firstNumberEletric").val()) * parseFloat($("#priceEletric").val()) + (parseFloat($("#finalNumberWater").val()) - parseFloat($("#firstNumberWater").val())) * parseFloat($("#priceWater").val()) + parseFloat($("#priceInternet").val())) + tienphong
+                        console.log(tienphong)
+                    }
+                    else if(month == han.thangKetThuc){
+                        numberDay = getDaysInMonth(month, year)
+                        tienphong = parseFloat(tienphong) * parseFloat(han.ngayKetThuc / numberDay)
+                        tongtienthanhtoan = parseFloat(($("#finalNumberElectric").val() - $("#firstNumberEletric").val()) * parseFloat($("#priceEletric").val()) + (parseFloat($("#finalNumberWater").val()) - parseFloat($("#firstNumberWater").val())) * parseFloat($("#priceWater").val()) + parseFloat($("#priceInternet").val())) + tienphong
+                        console.log(tienphong)
+                    }
+                }
+            }
+
+            const data = {
+                maphong: $("#roomIdExtract").val(),
+                cccd: $("#cccdExtract").val(),
+                chisodiendau: $("#firstNumberEletric").val(),
+                chisodiencuoi: $("#finalNumberElectric").val(),
+                chisonuocdau: $("#firstNumberWater").val(),
+                chisonuoccuoi: $("#finalNumberWater").val(),
+                sotiendien: $("#priceEletric").val(),
+                sotiennuoc: $("#priceWater").val(),
+                sotieninternet: $("#priceInternet").val(),
+                tienphong: tienphong,
+                tongtienthanhtoan: tongtienthanhtoan
+            };
+            console.log(0)
+            // Lấy đối tượng biểu mẫu từ DOM
+            const form = document.querySelector('form[action="/host/extract-bill"]');
+            // Gán giá trị cho các trường input trong biểu mẫu
+            form.elements.maphong.value = data.maphong;
+            form.elements.cccd.value = data.cccd;
+            form.elements.chisodiendau.value = data.chisodiendau;
+            form.elements.chisodiencuoi.value = data.chisodiencuoi;
+            form.elements.chisonuocdau.value = data.chisonuocdau;
+            form.elements.chisonuoccuoi.value = data.chisonuoccuoi;
+            form.elements.sotiendien.value = data.sotiendien;
+            form.elements.sotiennuoc.value = data.sotiennuoc;
+            form.elements.sotieninternet.value = data.sotieninternet;
+            form.elements.tienphong.value = data.tienphong;
+            form.elements.tongtienthanhtoan.value = data.tongtienthanhtoan;
+            // Submit biểu mẫu
+            form.submit();
+        })
+    }
+</script>
